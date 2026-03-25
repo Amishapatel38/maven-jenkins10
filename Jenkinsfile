@@ -1,21 +1,29 @@
 pipeline {
     agent any
+    tools {
+        maven 'Maven3'
+        jdk 'JAVA21'
+    }
     stages {
-        stage('Download') {
+        stage('Download Code') {
             steps {
-                echo "Download Code from Github"
-                git branch: 'main', url: 'https://github.com/bheesham-devops/maven-jenkins10.git'
+                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/Amishapatel38/maven-jenkins10.git']])
             }
         }
-        stage('Build Docker Image') {
+        stage('Build') {
             steps {
-                echo "Build the application docker image and push to Docker Hub"
-                sh '''docker build -t bheeshamdevops/java-webapp:v${BUILD_NUMBER} .
-                docker tag bheeshamdevops/java-webapp:v${BUILD_NUMBER} bheeshamdevops/java-webapp:latest
-                docker push bheeshamdevops/java-webapp:v${BUILD_NUMBER}
-                docker push bheeshamdevops/java-webapp:latest
-                '''
+                sh 'mvn clean package'
             }
         }
+        stage('Generate Artifacts') {
+            steps {
+                archiveArtifacts artifacts: '**/*.war', followSymlinks: false
+            }
+        }
+        stage('Trigger Deploy Pipeline') {
+            steps {
+                build wait: false, job: 'deploy-pipeline'
+            }
+        }        
     }
 }
