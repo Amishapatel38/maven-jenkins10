@@ -8,7 +8,7 @@ pipeline {
         stage('Download') {
             steps {
                 echo "Download Code from Github"
-                git branch: 'main', url: 'https://github.com/bheesham-devops/maven-jenkins10.git'
+                git branch: 'main', url: 'https://github.com/Amishapatel38/maven-jenkins10.git'
             }
         }
         stage('Build') {
